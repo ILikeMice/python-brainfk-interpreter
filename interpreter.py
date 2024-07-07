@@ -14,7 +14,8 @@ class Interpreter(object):
         self.current_token  = None # Current selected token
         self.loopstarts = [] # Keeps track of loop starts, aka '['
         self.loopends = [] # Does the same as self.lopstarts but for loopends (']')
-        self.looppointers = [] # Pointers where the loops start
+        self.looppointers = []
+        self.activeloops = []
         self.currentpointer = 0 # Current position in list of pointers, e.g. ([0][0]>[0]<[0][0]) (> and < as pointer)
         self.memory = { # Maybe not the best way to do it, list of all cells and its values, e.g. the default is just '[0]'
                 0: 0
@@ -75,7 +76,7 @@ class Interpreter(object):
             
         self.error(1)
 
-    def findloops(self): # Cycles though the code and writes down any loops
+    def findloops(self): # Does some magic to get all the loops and writes them down
         self.current_token = self.next_token()
         pointerpos = 0
         while self.current_token.type != EOF:
@@ -100,40 +101,22 @@ class Interpreter(object):
         output = ""
         usrinput = ""
         self.current_token = self.next_token()
-        while self.current_token.type != EOF:
-            print(self.current_token.type)
-            
-            if self.current_token.type == LOOPEND:
-                print("bap", self.pos, self.looppointers, self.loopstarts,self.loopends)
-                
+        while self.current_token.type != EOF:            
+            if self.current_token.type == LOOPEND:                
                 if self.pos in self.loopends:
                     if self.memory[self.looppointers[self.loopends.index(self.pos)]] != 0 :
                         self.pos = self.loopstarts[self.loopends.index(self.pos)]
-                        print("moved to", self.pos)
-                    else:
-                        print(self.memory)
-                        print(self.looppointers, self.loopstarts,self.loopends, self.pos, self.memory[self.looppointers[self.loopends.index(self.pos)]])
-                        """
-                        self.loopstarts.pop(self.loopends.index(self.pos))
-                        self.looppointers.pop(self.loopends.index(self.pos))
-                        self.loopends.pop(self.loopends.index(self.pos))
-                        
-                        """
-                        
+                   
 
-                        print(self.loopstarts,self.loopends, self.pos)
+                        
             
             if self.current_token.type == PLUS:
                 self.memory[self.currentpointer] += 1
-                print(self.memory[self.currentpointer])
 
             if self.current_token.type == MINUS:
                 self.memory[self.currentpointer] -= 1
-                print(self.memory[self.currentpointer])
                 
             if self.current_token.type == OUTPUT:
-                print(self.memory)
-                print(self.memory[self.currentpointer])
                 output += (chr(self.memory[self.currentpointer]))
 
             if self.current_token.type == INPUT:
@@ -144,13 +127,11 @@ class Interpreter(object):
                
             if self.current_token.type == RIGHT:
                 self.currentpointer += 1
-                print(self.currentpointer)
                 if not self.currentpointer in self.memory:
                     self.memory[self.currentpointer] = 0
             
             if self.current_token.type == LEFT:
                 self.currentpointer -= 1
-                print(self.currentpointer)
                 if not self.currentpointer in self.memory:
                     self.memory[self.currentpointer] = 0
 
