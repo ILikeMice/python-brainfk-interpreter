@@ -86,7 +86,6 @@ class Interpreter(object):
             if self.current_token.type == LOOPSTART:
                 self.loopstarts.append(self.pos)
                 self.looppointers.append(pointerpos)
-                self.activeloops.append(pointerpos)
             if self.current_token.type == LOOPEND:
                 self.loopends.append(self.pos)
 
