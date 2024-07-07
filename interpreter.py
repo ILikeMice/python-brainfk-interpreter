@@ -14,8 +14,7 @@ class Interpreter(object):
         self.current_token  = None # Current selected token
         self.loopstarts = [] # Keeps track of loop starts, aka '['
         self.loopends = [] # Does the same as self.lopstarts but for loopends (']')
-        self.looppointers = []
-        self.activeloops = []
+        self.looppointers = [] # All pointers where a loop started
         self.currentpointer = 0 # Current position in list of pointers, e.g. ([0][0]>[0]<[0][0]) (> and < as pointer)
         self.memory = { # Maybe not the best way to do it, list of all cells and its values, e.g. the default is just '[0]'
                 0: 0
