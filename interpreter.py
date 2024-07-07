@@ -5,7 +5,7 @@ EOF, PLUS, MINUS, RIGHT, LEFT, LOOPSTART, LOOPEND, INPUT, OUTPUT = "EOF", "PLUS"
 class Token(object):
     def __init__(self, type, val):
         self.type = type # One of the types in line 3 (PLUS,MINUS, etc.)
-        self.val = val # The tokens value, for example '+'
+        self.val = val # The token value, for example '+'
 
 class Interpreter(object):
     def __init__(self, text):
