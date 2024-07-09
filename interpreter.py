@@ -5,16 +5,15 @@ EOF, PLUS, MINUS, RIGHT, LEFT, LOOPSTART, LOOPEND, INPUT, OUTPUT = "EOF", "PLUS"
 class Token(object):
     def __init__(self, type, val):
         self.type = type # One of the types in line 3 (PLUS,MINUS, etc.)
-        self.val = val # The token value, for example '+'
+        self.val = val # The tokens value, for example '+'
 
 class Interpreter(object):
     def __init__(self, text):
         self.text = text # The input code
         self.pos = 0 # Current position in input code, e.g. "+++-++-++"
         self.current_token  = None # Current selected token
-        self.loopstarts = [] # Keeps track of loop starts, aka '['
-        self.loopends = [] # Does the same as self.lopstarts but for loopends (']')
-        self.looppointers = [] # All pointers where a loop started
+        self.loops = {} # Keeps track of loops
+        self.looppointers = []
         self.currentpointer = 0 # Current position in list of pointers, e.g. ([0][0]>[0]<[0][0]) (> and < as pointer)
         self.memory = { # Maybe not the best way to do it, list of all cells and its values, e.g. the default is just '[0]'
                 0: 0
@@ -75,39 +74,44 @@ class Interpreter(object):
             
         self.error(1)
 
-    def findloops(self): # Does some magic to get all the loops and writes them down
-        self.current_token = self.next_token()
-        pointerpos = 0
-        while self.current_token.type != EOF:
-            if self.current_token.type == RIGHT:
-                pointerpos += 1
-            if self.current_token.type == LEFT:
-                pointerpos -= 1
-            if self.current_token.type == LOOPSTART:
-                self.loopstarts.append(self.pos)
-                self.looppointers.append(pointerpos)
-            if self.current_token.type == LOOPEND:
-                self.loopends.append(self.pos)
-
-            self.current_token = self.next_token()
-        self.current_token.type = None
-        self.pos  = 0
+    def findloops(self): # Does some magic to get all the loops and write them down
+        used = []
+        pointer = 0
+        code = self.text
+        for i in range(len(code)):
+            starts,ends = 0,0
+            if i < len(code):
+                if code[i] == ">":
+                    pointer += 1
+                if code[i] == "<":
+                    pointer -= 1
+                if code[i] == "[" and i not in used:
+                    for b in range(i,len(code)):
+                        if b in used:
+                            break
+                        match code[b]:
+                            case "[":
+                                starts+=1
+                            case "]":
+                                ends+=1
+                        if starts == ends:
+                            self.loops[b] = i,pointer
+                            used.append(i)
+                            used.append(b)
+                            break
 
     def expr(self): # Main logic, processes and fulfills the actual functions of the tokens
         self.findloops()
-        self.loopends.reverse()
+        #self.loopends.reverse()
         output = ""
         usrinput = ""
         self.current_token = self.next_token()
-        while self.current_token.type != EOF:            
-            if self.current_token.type == LOOPEND:                
-                if self.pos in self.loopends:
-                    if self.memory[self.looppointers[self.loopends.index(self.pos)]] != 0 :
-                        self.pos = self.loopstarts[self.loopends.index(self.pos)]
+        while self.current_token.type != EOF:    
+            if self.current_token.type == LOOPEND: 
+                if self.pos-1 in self.loops:
+                    if self.memory[self.loops[self.pos-1][1]] != 0 :
+                        self.pos = self.loops[self.pos-1][0]
                    
-
-                        
-            
             if self.current_token.type == PLUS:
                 self.memory[self.currentpointer] += 1
 
