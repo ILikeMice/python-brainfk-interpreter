@@ -23,7 +23,7 @@ class Interpreter(object):
         raise Exception(f'Error while interpreting (Errno:{num})')
     
     def next_token(self): # Proceeds to next token
-        text = self.text
+        text = self.text.strip().replace(" ", "")
 
         if self.pos > len(text) - 1:
             return Token(EOF, None)
@@ -77,7 +77,7 @@ class Interpreter(object):
     def findloops(self): # Does some magic to get all the loops and write them down
         used = []
         pointer = 0
-        code = self.text
+        code = self.text.strip().replace(" ", "")
         for i in range(len(code)):
             starts,ends = 0,0
             if i < len(code):
